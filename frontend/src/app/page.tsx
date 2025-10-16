@@ -1,16 +1,17 @@
 "use client";
-import { useState } from "react";
-
-const variants = [
-  { id: "1", color: "Violet", material: "Leather" },
-  { id: "2", color: "Violet", material: "Linen" },
-  { id: "3", color: "Beige", material: "Leather" },
-  { id: "4", color: "Beige", material: "Linen" },
-];
+import { useState, useMemo, useEffect } from "react";
+import useProduct from "@/hooks/useProduct";
 
 const colorMap: Record<string, string> = {
   Violet: "#b599c9",
   Beige: "#F5F5DC",
+};
+
+const priceMap: Record<string, number> = {
+  "Violet|Leather": 2000,
+  "Violet|Linen": 1800,
+  "Beige|Leather": 2100,
+  "Beige|Linen": 1900,
 };
 
 const ProductPage = () => {
@@ -18,17 +19,57 @@ const ProductPage = () => {
     "https://new.exterioramenities.com/_next/image?url=https%3A%2F%2Fmedia.new.exterioramenities.com%2Fmedusa%2Fcypress-retreat-01JW79F9WXDYBRJHP6CBAWX744.png&w=1920&q=75",
     "https://new.exterioramenities.com/_next/image?url=https%3A%2F%2Fmedia.new.exterioramenities.com%2Fmedusa%2Fcypress-retreat-2-01JW79F9WYBB7EDAH39J5DFYDG.png&w=1920&q=75",
   ];
+  const productId = "prod_01K7J8MKDNS0PMAMJ5JHX8VMCM";
+  const {product, loading}= useProduct(productId);
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState<string>("Violet");
-  const [selectedMaterial, setSelectedMaterial] = useState<string>("Leather");
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  
+  useEffect(() => {
+  if (!product) return;
 
-  const selectedVariants = variants.find(
-    (variant) => variant.color === selectedColor && variant.material == selectedMaterial
-  );
+  if (!selectedColor) {
+    const defaultColor = product.variants[0].options.find(
+      (opt) => opt.option?.title.toLowerCase() === "color"
+    )?.value;
+    setSelectedColor(defaultColor || null);
+  }
+
+  if (!selectedMaterial) {
+    const defaultMaterial = product.variants[0].options.find(
+      (opt) => opt.option?.title.toLowerCase() === "material"
+    )?.value;
+    setSelectedMaterial(defaultMaterial || null);
+    }
+  }, [product]);
+
+  const { colors, materials } = useMemo(() => {
+    const colorSet = new Set<string>();
+    const materialSet = new Set<string>();
+
+    product?.variants.forEach((variant) => {
+      variant.options.forEach((opt) => {
+        const title = opt.option?.title?.toLowerCase();
+        if (title === "color") colorSet.add(opt.value);
+        if (title === "material") materialSet.add(opt.value);
+      });
+    });
+
+    return {
+      colors: Array.from(colorSet),
+      materials: Array.from(materialSet),
+    };
+}, [product]);
+
+    const selectedPrice = useMemo(() => {
+    if (!selectedColor || !selectedMaterial) return null;
+    const key = `${selectedColor}|${selectedMaterial}`;
+    return priceMap[key] || null;
+  }, [selectedColor, selectedMaterial]);
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
@@ -39,9 +80,14 @@ const ProductPage = () => {
   };
 
   const handleAddToCart = () => {
-    if (!selectedVariants) return;
-    alert(`Added to cart (Cypress Retreat ${selectedVariants.id})`);
+    if (!selectedColor || !selectedMaterial) return;
+    const key = `${selectedColor}|${selectedMaterial}`;
+    const price = priceMap[key];
+    alert(`Added to cart: ${product?.title} (${selectedColor} / ${selectedMaterial}) - $${price}`);
   };
+
+  if (loading) return <p className="p-10">Loading...</p>;
+  if (!product) return <p className="p-10">Product not found.</p>;
 
   return (
     <div className="flex flex-col lg:flex-row items-start w-full min-h-screen px-5 lg:px-16 py-5 gap-5">
@@ -103,16 +149,14 @@ const ProductPage = () => {
       </div>
 
       <div className="w-full lg:w-[500px] mt-5 lg:mt-0 lg:ml-20">
-        <h1 className="text-4xl font-serif mb-2">Cypress Retreat</h1>
-        <h2 className="text-2xl font-serif mb-3">$500.00</h2>
-        <p className="text-gray-700 font-serif leading-relaxed mb-5">
-          The Cypress Retreat is a nod to traditional design with its elegant lines and durable, high-quality upholstery. A timeless choice, it offers long-lasting comfort and a refined aesthetic for any home.
-        </p>
+        <h1 className="text-4xl font-serif mb-2">{product.title}</h1>
+        <h2 className="text-2xl font-serif mb-3">{selectedPrice ? `$${selectedPrice}` : "N/A"}</h2>
+        <p className="text-gray-700 font-serif leading-relaxed mb-5">{product.description}</p>
 
         <div className="mb-4">
           <h3 className="font-serif mb-2">Color</h3>
           <div className="flex gap-3">
-            {["Violet", "Beige"].map((color) => (
+            {colors.map((color) => (
               <div key={color} className="flex flex-col items-center">
                 <button
                   style={{ backgroundColor: colorMap[color] }}
@@ -141,7 +185,7 @@ const ProductPage = () => {
             </button>
             {dropdownOpen && (
               <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-md">
-                {["Leather", "Linen"].map((material) => (
+                {materials.map((material) => (
                   <li
                     key={material}
                     className="font-bold px-5 py-2 hover:bg-gray-100 cursor-pointer"
@@ -181,7 +225,7 @@ const ProductPage = () => {
 
           <button
             className="relative w-full lg:w-[500px] px-6 py-3 bg-black hover:bg-gray-500 text-white rounded text-sm"
-            disabled={!selectedVariants}
+            disabled={!selectedColor || !selectedMaterial}
             onClick={handleAddToCart}
           >
             Add to cart
