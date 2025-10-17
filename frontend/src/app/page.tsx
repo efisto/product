@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import useProduct from "@/hooks/useProduct";
+import { useCart } from "@/context/CartContext";
 
 const colorMap: Record<string, string> = {
   Violet: "#b599c9",
@@ -28,22 +29,25 @@ const ProductPage = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+  const [showBanner, setShowBanner] = useState(false);
+
   
   useEffect(() => {
-  if (!product) return;
+    if (!product) return;
 
-  if (!selectedColor) {
-    const defaultColor = product.variants[0].options.find(
-      (opt) => opt.option?.title.toLowerCase() === "color"
-    )?.value;
-    setSelectedColor(defaultColor || null);
-  }
+    if (!selectedColor) {
+      const defaultColor = product.variants[0].options.find(
+        (opt) => opt.option?.title.toLowerCase() === "color"
+      )?.value;
+      setSelectedColor(defaultColor || null);
+    }
 
-  if (!selectedMaterial) {
-    const defaultMaterial = product.variants[0].options.find(
-      (opt) => opt.option?.title.toLowerCase() === "material"
-    )?.value;
-    setSelectedMaterial(defaultMaterial || null);
+    if (!selectedMaterial) {
+      const defaultMaterial = product.variants[0].options.find(
+        (opt) => opt.option?.title.toLowerCase() === "material"
+      )?.value;
+      setSelectedMaterial(defaultMaterial || null);
     }
   }, [product]);
 
@@ -63,7 +67,7 @@ const ProductPage = () => {
       colors: Array.from(colorSet),
       materials: Array.from(materialSet),
     };
-}, [product]);
+  }, [product]);
 
     const selectedPrice = useMemo(() => {
     if (!selectedColor || !selectedMaterial) return null;
@@ -80,11 +84,23 @@ const ProductPage = () => {
   };
 
   const handleAddToCart = () => {
-    if (!selectedColor || !selectedMaterial) return;
-    const key = `${selectedColor}|${selectedMaterial}`;
-    const price = priceMap[key];
-    alert(`Added to cart: ${product?.title} (${selectedColor} / ${selectedMaterial}) - $${price}`);
+    if (!selectedColor || !selectedMaterial || !selectedPrice) return;
+
+    addToCart({
+      productId,
+      title: product?.title || "",
+      color: selectedColor,
+      material: selectedMaterial,
+      quantity,
+      price: selectedPrice,
+      image: imageUrls[currentIndex],
+    });
+
+    setShowBanner(true);
+
+    setTimeout(() => setShowBanner(false), 2000);
   };
+
 
   if (loading) return <p className="p-10">Loading...</p>;
   if (!product) return <p className="p-10">Product not found.</p>;
@@ -149,15 +165,20 @@ const ProductPage = () => {
       </div>
 
       <div className="w-full lg:w-[500px] mt-5 lg:mt-0 lg:ml-20">
-        <h1 className="text-4xl font-serif mb-2">{product.title}</h1>
-        <h2 className="text-2xl font-serif mb-3">{selectedPrice ? `$${selectedPrice}` : "N/A"}</h2>
-        <p className="text-gray-700 font-serif leading-relaxed mb-5">{product.description}</p>
+        <h1 className="text-4xl font-sans mb-4">{product.title}</h1>
+        <h2 className="text-2xl font-sans mb-2">{selectedPrice ? `$${selectedPrice}` : "N/A"}</h2>
+        <p className="text-gray-700 font-sans leading-relaxed mb-6">{product.description}</p>
 
-        <div className="mb-4">
-          <h3 className="font-serif mb-2">Color</h3>
+        <div className="mb-6">
+          <div className="flex items-baseline gap-2 mb-3">
+            <h3 className="font-sans mr-1">Colors</h3>
+              {selectedColor && (
+              <span className="text-gray-500">{selectedColor}</span>
+            )}
+          </div>
           <div className="flex gap-3">
             {colors.map((color) => (
-              <div key={color} className="flex flex-col items-center">
+              <div key={color} className="flex flex-col items-center mr-2">
                 <button
                   style={{ backgroundColor: colorMap[color] }}
                   className="w-8 h-8 border-2 border-gray-200"
@@ -169,8 +190,8 @@ const ProductPage = () => {
           </div>
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-serif mb-2">Material</h3>
+        <div className="mb-6">
+          <h3 className="font-sans mb-3">Materials</h3>
           <div className="relative w-full lg:w-[500px]">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -232,6 +253,11 @@ const ProductPage = () => {
           </button>
         </div>
       </div>
+      {showBanner && (
+        <div className="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50">
+          Added to cart
+        </div>
+      )}
     </div>
   );
 };
