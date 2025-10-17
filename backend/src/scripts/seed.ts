@@ -47,6 +47,29 @@ export default async function seedDemoData({ container }: ExecArgs) {
 });
 const cypressChannel = cypressChannelResult[0];
 
+// 1️⃣ Kreiranje publishable API key
+const { result: apiKeyResult } = await createApiKeysWorkflow(container).run({
+  input: {
+    api_keys: [
+      {
+        type: "publishable",
+        title: "Cypress Publishable Key",
+        created_by: "system", // obavezno!
+      },
+    ],
+  },
+});
+
+const publishableApiKey = apiKeyResult[0];
+
+await linkSalesChannelsToApiKeyWorkflow(container).run({
+  input: {
+    id: publishableApiKey.id,
+    add: [cypressChannel.id],
+  },
+});
+
+
   await updateStoresWorkflow(container).run({
     input: {
       selector: { id: store.id },
@@ -288,16 +311,6 @@ const cypressChannel = cypressChannelResult[0];
 
   logger.info("Linking existing publishable API key...");
 
-const publishableApiKey = {
-  id: "pk_3e97d7962c7bbb01e72d0a33256412669f0e7a5fc8354c5596605c2e3bf86631",
-};
-
-await linkSalesChannelsToApiKeyWorkflow(container).run({
-  input: {
-    id: publishableApiKey.id,
-    add: [cypressChannel.id],
-  },
-});
 
 
 logger.info("Finished linking publishable API key.");
