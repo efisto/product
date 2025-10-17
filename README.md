@@ -47,8 +47,8 @@ yarn seed
 yarn medusa user -e test@test.com -p test
 ```
 Podaci za prijavu u Medusa Admin:
-  - test@test.com
-  - test
+  - Email: test@test.com
+  - Password: test
   
 ### 7. Pokretanje backend i frontend projekta 
 U root-u projekta
