@@ -59,15 +59,11 @@ yarn dev
 - Frontend: http://localhost:3000
 ### 8. Postavljanje ID proizvoda
 Otvori http://localhost:9000/app i prijavi se s podacima.
-Idi na Products i odaberi proizvod Cypress Retreat
-u URL-u u pregledniku pronađi ID proizvoda: http://localhost:9000/app/products/<PRODUCT_ID>
-Kopiraj <PRODUCT_ID> i zalijepi ga u 
-product/frontend/src/app/page.tsx u liniji 24 (const productId = “OVDJE ZALIJEPI”)
+Idi na Products i odaberi proizvod Cypress Retreat u URL-u u pregledniku pronađi ID proizvoda: http://localhost:9000/app/products/<PRODUCT_ID>. Kopiraj <PRODUCT_ID> i zalijepi ga u product/frontend/src/app/page.tsx u liniji 24 (const productId = “OVDJE ZALIJEPI”)
 
 ### 9. Postavljanje Publishable API key-a
 Idi u Settings->Publishable API Keys
-Kopiraj postojeći APi key i zalijepi ga u product/frontend/src/hooks/useProduct.ts
-u liniji 38 ("x-publishable-api-key": “OVDJE ZALIJEPI”)
+Kopiraj postojeći APi key i zalijepi ga u product/frontend/src/hooks/useProduct.ts u liniji 38 ("x-publishable-api-key": “OVDJE ZALIJEPI”)
 
 ## Procijenjeno vrijeme izrade
 Približno 5 dana (ne punog radnog vremena)
