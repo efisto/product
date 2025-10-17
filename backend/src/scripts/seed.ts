@@ -36,21 +36,16 @@ export default async function seedDemoData({ container }: ExecArgs) {
     name: "Default Sales Channel",
   });
 
-  if (!defaultSalesChannel.length) {
-    // create the default sales channel
-    const { result: salesChannelResult } = await createSalesChannelsWorkflow(
-      container
-    ).run({
-      input: {
-        salesChannelsData: [
-          {
-            name: "Default Sales Channel",
-          },
-        ],
+  const { result: cypressChannelResult } = await createSalesChannelsWorkflow(container).run({
+  input: {
+    salesChannelsData: [
+      {
+        name: "Cypress Retreat Channel",
       },
-    });
-    defaultSalesChannel = salesChannelResult;
-  }
+    ],
+  },
+});
+const cypressChannel = cypressChannelResult[0];
 
   await updateStoresWorkflow(container).run({
     input: {
@@ -291,29 +286,22 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
   logger.info("Finished seeding stock location data.");
 
-  logger.info("Seeding publishable API key data...");
-  const { result: publishableApiKeyResult } = await createApiKeysWorkflow(
-    container
-  ).run({
-    input: {
-      api_keys: [
-        {
-          title: "Webshop",
-          type: "publishable",
-          created_by: "",
-        },
-      ],
-    },
-  });
-  const publishableApiKey = publishableApiKeyResult[0];
+  logger.info("Linking existing publishable API key...");
 
-  await linkSalesChannelsToApiKeyWorkflow(container).run({
-    input: {
-      id: publishableApiKey.id,
-      add: [defaultSalesChannel[0].id],
-    },
-  });
-  logger.info("Finished seeding publishable API key data.");
+const publishableApiKey = {
+  id: "pk_3e97d7962c7bbb01e72d0a33256412669f0e7a5fc8354c5596605c2e3bf86631",
+};
+
+await linkSalesChannelsToApiKeyWorkflow(container).run({
+  input: {
+    id: publishableApiKey.id,
+    add: [cypressChannel.id],
+  },
+});
+
+
+logger.info("Finished linking publishable API key.");
+
 
   logger.info("Seeding product data...");
 
@@ -345,6 +333,63 @@ export default async function seedDemoData({ container }: ExecArgs) {
   await createProductsWorkflow(container).run({
     input: {
       products: [
+        {
+          title: "Cypress Retreat",
+          description:
+            "The Cypress Retreat is a nod to traditional design with its elegant lines and durable, high-quality upholstery. A timeless choice, it offers long-lasting comfort and a refined aesthetic for any home.",
+          handle: "cypress-retreat",
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfile.id,
+          options: [
+            {
+              title: "Color",
+              values: ["Violet", "Beige"],
+            },
+            {
+              title: "Material",
+              values: ["Leather", "Linen"],
+            },
+          ],
+          variants: [
+            {
+              title: "Violet / Leather",
+              sku: "CYPRESS-VIOLET-LEATHER",
+              options: {
+                Color: "Violet",
+                Material: "Leather",
+              },
+              prices: [],
+            },
+            {
+              title: "Violet / Linen",
+              sku: "CYPRESS-VIOLET-LINEN",
+              options: {
+                Color: "Violet",
+                Material: "Linen",
+              },
+              prices: [],
+            },
+            {
+              title: "Beige / Leather",
+              sku: "CYPRESS-BEIGE-LEATHER",
+              options: {
+                Color: "Beige",
+                Material: "Leather",
+              },
+              prices: [],
+            },
+            {
+              title: "Beige / Linen",
+              sku: "CYPRESS-BEIGE-LINEN",
+              options: {
+                Color: "Beige",
+                Material: "Linen",
+              },
+              prices: [],
+            },
+          ],
+         sales_channels: [{ id: cypressChannel.id }],
+        },
         {
           title: "Medusa T-Shirt",
           category_ids: [
