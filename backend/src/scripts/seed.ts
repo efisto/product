@@ -47,14 +47,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
 });
 const cypressChannel = cypressChannelResult[0];
 
-// 1️⃣ Kreiranje publishable API key
 const { result: apiKeyResult } = await createApiKeysWorkflow(container).run({
   input: {
     api_keys: [
       {
         type: "publishable",
         title: "Cypress Publishable Key",
-        created_by: "system", // obavezno!
+        created_by: "system",
       },
     ],
   },
@@ -69,6 +68,7 @@ await linkSalesChannelsToApiKeyWorkflow(container).run({
   },
 });
 
+logger.info(`Publishable API Key: ${publishableApiKey.token}`);
 
   await updateStoresWorkflow(container).run({
     input: {
@@ -352,7 +352,7 @@ logger.info("Finished linking publishable API key.");
             "The Cypress Retreat is a nod to traditional design with its elegant lines and durable, high-quality upholstery. A timeless choice, it offers long-lasting comfort and a refined aesthetic for any home.",
           handle: "cypress-retreat",
           status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
+          sales_channels: [{ id: cypressChannel.id }],
           options: [
             {
               title: "Color",
@@ -400,8 +400,7 @@ logger.info("Finished linking publishable API key.");
               },
               prices: [],
             },
-          ],
-         sales_channels: [{ id: cypressChannel.id }],
+          ]
         },
         {
           title: "Medusa T-Shirt",
