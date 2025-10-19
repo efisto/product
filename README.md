@@ -6,7 +6,7 @@ Ovo je testni zadatak za Product stranicu i uključuje:
   - Frontend: Next.js, Typescript, TailwindCSS 
 
 Cilj zadatka je izraditi Product stranicu koja prikazuje proizvod 
-i njegove detalje, te omogućuje odabir varijanti (boja i materijal)
+i njegove detalje, te omogućuje odabir varijanti (boja i materijal).
 Stranica također omogućuje dodavanje odabrane varijante u košaricu 
 s odabranom količinom i pregled sadržaja košarice. 
 
@@ -70,8 +70,8 @@ Približno 5 dana (ne punog radnog vremena)
 
 ## Kratkim osvrt na najzahtjevnije dijelove zadatka
 Najzahtjevniji dio zadatka bio mi je razumjeti kako Medusa Admin radi, 
-s obzirom da sam Medusu koristio/la prvi put, te kako povezati podatke 
+s obzirom da sam Medusu koristila prvi put, te kako povezati podatke 
 unesene u admin sučelje s frontend aplikacijom kako bi se pravilno prikazivale 
-varijante proizvoda. Također, prilikom izrade uputa za pokretanje problema su mi 
-stvarali API ključevi i ID proizvoda — trebalo mi je vremena da shvatim kako to 
+varijante proizvoda. Također, prilikom izrade uputa za pokretanje probleme su mi 
+stvarali API ključevi i ID proizvoda, trebalo mi je vremena da shvatim kako to 
 funkcionira, dakle opet Medusa Admin.
