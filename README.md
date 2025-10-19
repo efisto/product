@@ -68,7 +68,7 @@ Kopiraj postojeći APi key i zalijepi ga u product/frontend/src/hooks/useProduct
 ## Procijenjeno vrijeme izrade
 Približno 5 dana (ne punog radnog vremena)
 
-## Kratkim osvrt na najzahtjevnije dijelove zadatka
+## Kratki osvrt na najzahtjevnije dijelove zadatka
 Najzahtjevniji dio zadatka bio mi je razumjeti kako Medusa Admin radi, 
 s obzirom da sam Medusu koristila prvi put, te kako povezati podatke 
 unesene u admin sučelje s frontend aplikacijom kako bi se pravilno prikazivale 
